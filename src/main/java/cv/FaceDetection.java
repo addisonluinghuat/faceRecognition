@@ -7,7 +7,7 @@ import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -29,7 +29,7 @@ public class FaceDetection extends Application {
 		try {
 			// load the FXML resource
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("FaceDetection.fxml"));
-			BorderPane root = (BorderPane) loader.load();
+			AnchorPane root = (AnchorPane) loader.load();
 			// set a whitesmoke background
 			root.setStyle("-fx-background-color: whitesmoke;");
 			// create and style a scene

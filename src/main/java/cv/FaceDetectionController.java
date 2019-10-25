@@ -1,5 +1,6 @@
 package cv;
 
+import java.util.HashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -15,10 +16,14 @@ import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.objdetect.Objdetect;
 import org.opencv.videoio.VideoCapture;
 
+import com.demo.utils.FileUtils;
+import com.demo.utils.Utils;
+
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -45,6 +50,10 @@ public class FaceDetectionController {
 	private CheckBox haarClassifier;
 	@FXML
 	private CheckBox lbpClassifier;
+	@FXML
+	private TextField username;
+	@FXML
+	private Button takePhoto;
 
 	// a timer for acquiring the video stream
 	private ScheduledExecutorService timer;
@@ -53,9 +62,13 @@ public class FaceDetectionController {
 	// a flag to change the button behavior
 	private boolean cameraActive;
 
+	private boolean canTakePhoto = false;
+
 	// face cascade classifier
 	private CascadeClassifier faceCascade;
 	private int absoluteFaceSize;
+
+	String photoPath = "C:\\Users\\addison.lu\\faceRecognition\\resources\\";
 
 	/**
 	 * Init the controller, at start time
@@ -183,16 +196,34 @@ public class FaceDetectionController {
 		// each rectangle in faces is a face: draw them!
 		Rect[] facesArray = faces.toArray();
 		for (int i = 0; i < facesArray.length; i++) {
-			Imgproc.rectangle(frame, facesArray[i].tl(), facesArray[i].br(), new Scalar(0, 255, 0), 3);
 
-			Rect rectCrop = new Rect(facesArray[i].tl(), facesArray[i].br());
-			Mat cropFace = new Mat(frame, rectCrop);
-			Imgproc.resize(cropFace, cropFace, new Size(92, 112));
+			if (canTakePhoto == false) {
+				Imgproc.rectangle(frame, facesArray[i].tl(), facesArray[i].br(), new Scalar(0, 255, 0), 3);
+			} else {
+				System.out.println("starting take photo");
+				// 1.check username exists in users.txt
+				HashMap<String, String> map = FileUtils.insert(photoPath, username.getText());
 
-			Imgcodecs.imwrite("faceDetection.png", cropFace);
+				// 2. create new folder in photo folder
+				if (map.size() != 0)
+					FileUtils.createFolder(photoPath + "photo\\" + map.get(username.getText()));
 
+				// 3. create new photo
+				String fileName = "tempPhoto.jpg";
+				Utils.createPhoto(facesArray[i].tl(), facesArray[i].br(), frame,
+						photoPath + "photo\\" + map.get(username.getText()) + "\\", fileName);
+				/*
+				 * Rect rectCrop = new Rect(facesArray[i].tl(), facesArray[i].br()); Mat
+				 * cropFace = new Mat(frame, rectCrop); Imgproc.resize(cropFace, cropFace, new
+				 * Size(92, 112)); Imgcodecs.imwrite(photoPath + fileName, cropFace);
+				 */
+				canTakePhoto = false;
+				takePhoto.setDisable(canTakePhoto);
+
+				// ImageConverter.convertPNGToPGM(photoPath, fileName);
+			}
 		}
-		// Imgcodecs.imwrite("faceDetection.png", frame);
+		Imgcodecs.imwrite("faceDetection.jpg", frame);
 
 	}
 
@@ -274,6 +305,12 @@ public class FaceDetectionController {
 	 */
 	protected void setClosed() {
 		this.stopAcquisition();
+	}
+
+	@FXML
+	protected void startTakePhoto() {
+		canTakePhoto = true;
+		takePhoto.setDisable(canTakePhoto);
 	}
 
 }

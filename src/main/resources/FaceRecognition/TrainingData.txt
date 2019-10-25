@@ -400,5 +400,3 @@ D:\Node\opencv\att_faces\s38\8.pgm;37
 D:\Node\opencv\att_faces\s38\1.pgm;37
 D:\Node\opencv\att_faces\s41\1.pgm;40
 D:\Node\opencv\att_faces\s41\2.pgm;40
-D:\Node\opencv\att_faces\s41\3.pgm;40
-D:\Node\opencv\att_faces\s41\4.pgm;40
