@@ -80,4 +80,21 @@ public class FileUtils {
 		if (!dir.exists())
 			dir.mkdirs();
 	}
+
+	public static void deleteFilesByExtension(String directory) {
+		File folder = new File(directory);
+		File fList[] = folder.listFiles();
+		for (int i = 0; i < fList.length; i++) {
+			File f = fList[i];
+			if (!f.getName().endsWith(".pgm")) {
+				f.delete();
+			}
+		}
+	}
+
+	public static int countTotalItemsInfolder(String directory) {
+		File folder = new File(directory);
+		int fileCount = folder.list().length;
+		return fileCount;
+	}
 }

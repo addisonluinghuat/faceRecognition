@@ -50,5 +50,7 @@ public class Utils {
 		Imgproc.resize(cropFace, cropFace, new Size(92, 112));
 		Imgcodecs.imwrite(photoFullPath + fileName, cropFace);
 		ImageConverter.convertPNGToPGM(photoFullPath, fileName);
+
 	}
+
 }
