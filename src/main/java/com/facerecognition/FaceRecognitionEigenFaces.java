@@ -1,4 +1,4 @@
-package com.demo.facerecognition;
+package com.facerecognition;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -15,7 +15,6 @@ import org.opencv.imgcodecs.Imgcodecs;
 
 public class FaceRecognitionEigenFaces {
 	public static String basePath = System.getProperty("user.dir");
-
 	public static String csvFilePath = basePath + "\\src\\main\\resources\\FaceRecognition\\TrainingData.txt";
 
 	public static void main(String[] args) {
@@ -29,8 +28,8 @@ public class FaceRecognitionEigenFaces {
 
 		Mat testSample = images.get(images.size() - 1);
 		Integer testLabel = labels.get(images.size() - 1);
-		 images.remove(images.size()-1);
-		 labels.remove(labels.size()-1);
+		images.remove(images.size() - 1);
+		labels.remove(labels.size() - 1);
 		MatOfInt labelsMat = new MatOfInt();
 		labelsMat.fromList(labels);
 		EigenFaceRecognizer efr = EigenFaceRecognizer.create();
@@ -40,12 +39,14 @@ public class FaceRecognitionEigenFaces {
 		int[] outLabel = new int[1];
 		double[] outConf = new double[1];
 		System.out.println("Starting Prediction...");
-		efr.predict(testSample, outLabel, outConf);
-
-		System.out.println("***Predicted label is " + outLabel[0] + ".***");
-
-		System.out.println("***Actual label is " + testLabel + ".***");
-		System.out.println("***Confidence value is " + outConf[0] + ".***");
+		/*
+		 * efr.predict(testSample, outLabel, outConf);
+		 * 
+		 * System.out.println("***Predicted label is " + outLabel[0] + ".***");
+		 * 
+		 * System.out.println("***Actual label is " + testLabel + ".***");
+		 * System.out.println("***Confidence value is " + outConf[0] + ".***");
+		 */
 
 	}
 

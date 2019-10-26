@@ -1,14 +1,19 @@
-package com.demo.utils;
+package com.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+
+import org.opencv.core.Mat;
+import org.opencv.imgcodecs.Imgcodecs;
 
 public class FileUtils {
 
@@ -21,14 +26,11 @@ public class FileUtils {
 			System.out.println("map:" + map.size());
 			if (map.size() == 0) {
 				String fullFilePath = path + fileName;
-				FileWriter fw = new FileWriter(fullFilePath, true); // the true will append the new data
 				long lineCount = countLine(fullFilePath);
 				String key = username;
 				String no = "" + (lineCount + 1);
 				String valueToInsert = no + "|" + username;
-				fw.write(valueToInsert + System.getProperty("line.separator"));// appends the string
-																				// // to // the file
-				fw.close();
+				writeFile(fullFilePath, valueToInsert);
 				map.put(username, no);
 				return map;
 
@@ -39,6 +41,12 @@ public class FileUtils {
 		}
 
 		return map;
+	}
+
+	public static void writeFile(String fullFilePath, String value) throws IOException {
+		FileWriter fw = new FileWriter(fullFilePath, true);
+		fw.write(value + System.getProperty("line.separator"));
+		fw.close();
 	}
 
 	public static long countLine(String fullPath) throws IOException {
@@ -54,7 +62,7 @@ public class FileUtils {
 			File f = new File(path + fileName);
 			BufferedReader b = new BufferedReader(new FileReader(f));
 			String readLine = "";
-			System.out.println("Reading file using Buffered Reader");
+			System.out.println("Reading file using Buffered Reader" + path + fileName);
 			while ((readLine = b.readLine()) != null) {
 				String[] info = readLine.split("\\|");
 				String no = info[0];
@@ -97,4 +105,48 @@ public class FileUtils {
 		int fileCount = folder.list().length;
 		return fileCount;
 	}
+
+	public static void readCSV(String csvFilePath2, ArrayList<Mat> images, ArrayList<Integer> labels) {
+		BufferedReader br;
+		try {
+			br = new BufferedReader(new FileReader(csvFilePath2));
+
+			String line;
+			while ((line = br.readLine()) != null) {
+				String[] tokens = line.split("\\;");
+				Mat readImage = Imgcodecs.imread(tokens[0], 0);
+				images.add(readImage);
+				labels.add(Integer.parseInt(tokens[1]));
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public static String getUsernameByUserNo(String path, String fileName, int userNo) {
+		try {
+			File f = new File(path + fileName);
+			BufferedReader b = new BufferedReader(new FileReader(f));
+			String readLine = "";
+			System.out.println("Reading file using Buffered Reader" + path + fileName);
+			while ((readLine = b.readLine()) != null) {
+				String[] info = readLine.split("\\|");
+				String no = info[0];
+				String username = info[1];
+				if (no.equals(String.valueOf(userNo))) {
+					return username;
+				}
+
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+
 }

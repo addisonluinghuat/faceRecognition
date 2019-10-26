@@ -11,18 +11,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-/**
- * The main class for a JavaFX application. It creates and handle the main
- * window with its resources (style, graphics, etc.).
- * 
- * This application handles a video stream and try to find any possible human
- * face in a frame. It can use the Haar or the LBP classifier.
- * 
- * @author <a href="mailto:luigi.derussis@polito.it">Luigi De Russis</a>
- * @version 2.0 (2017-03-10)
- * @since 1.0 (2014-01-10)
- * 
- */
 public class FaceDetection extends Application {
 	@Override
 	public void start(Stage primaryStage) {
@@ -58,8 +46,6 @@ public class FaceDetection extends Application {
 	}
 
 	public static void main(String[] args) {
-		// load the native OpenCV library
-		// System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		Loader.load(opencv_java.class);
 		launch(args);
 	}

@@ -1,5 +1,6 @@
 package cv;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -15,8 +16,8 @@ import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.objdetect.Objdetect;
 import org.opencv.videoio.VideoCapture;
 
-import com.demo.utils.FileUtils;
-import com.demo.utils.Utils;
+import com.utils.FileUtils;
+import com.utils.Utils;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -62,7 +63,12 @@ public class FaceDetectionController {
 	private CascadeClassifier faceCascade;
 	private int absoluteFaceSize;
 
-	String photoPath = "C:\\Users\\addison.lu\\faceRecognition\\resources\\";
+	private static String basePath = System.getProperty("user.dir");
+	private String resourcePath = basePath + "\\src\\main\\resources\\";
+	private String haarcascadesPath = basePath
+			+ "\\src\\main\\resources\\haarcascades\\haarcascade_frontalface_alt.xml";
+	private static String csvFilePath = basePath + "\\src\\main\\resources\\TrainingData.txt";
+	private String fileName = "tempPhoto.jpg";
 
 	/**
 	 * Init the controller, at start time
@@ -70,7 +76,7 @@ public class FaceDetectionController {
 	protected void init() {
 		this.capture = new VideoCapture();
 		this.faceCascade = new CascadeClassifier();
-		this.faceCascade.load("resources/haarcascades/haarcascade_frontalface_alt.xml");
+		this.faceCascade.load(haarcascadesPath);
 		this.absoluteFaceSize = 0;
 
 		// set a fixed width for the frame
@@ -101,7 +107,7 @@ public class FaceDetectionController {
 						// effectively grab and process a single frame
 						Mat frame = grabFrame();
 						// convert and show the frame
-						Image imageToShow = FCUtils.mat2Image(frame);
+						Image imageToShow = Utils.mat2Image(frame);
 						updateImageView(originalFrame, imageToShow);
 					}
 				};
@@ -161,8 +167,9 @@ public class FaceDetectionController {
 	 * 
 	 * @param frame
 	 *            it looks for faces in this frame
+	 * @throws IOException
 	 */
-	private void detectAndDisplay(Mat frame) {
+	private void detectAndDisplay(Mat frame) throws IOException {
 		MatOfRect faces = new MatOfRect();
 		Mat grayFrame = new Mat();
 
@@ -189,19 +196,24 @@ public class FaceDetectionController {
 
 			if (canTakePhoto == false) {
 				Imgproc.rectangle(frame, facesArray[i].tl(), facesArray[i].br(), new Scalar(0, 255, 0), 3);
+				// Starting training
+				int userNo = Utils.training(csvFilePath, facesArray[i].tl(), facesArray[i].br(), frame);
+				String username = FileUtils.getUsernameByUserNo(resourcePath, "users.txt", userNo);
+				System.out.print("username:" + username);
+				Imgproc.putText(frame, username, facesArray[i].tl(), Imgproc.FONT_HERSHEY_PLAIN, 2.0,
+						new Scalar(255, 0, 0));
 			} else {
 				System.out.println("starting take photo");
 				// 1.check username exists in users.txt
-				HashMap<String, String> map = FileUtils.insert(photoPath, username.getText());
+				HashMap<String, String> map = FileUtils.insert(resourcePath, username.getText());
 
 				// 2. create new folder in photo folder
 				if (map.size() != 0)
-					FileUtils.createFolder(photoPath + "photo\\" + map.get(username.getText()));
+					FileUtils.createFolder(resourcePath + "photo\\" + map.get(username.getText()));
 
 				// 3. create new photo
-				String fileName = "tempPhoto.jpg";
-				Utils.createPhoto(facesArray[i].tl(), facesArray[i].br(), frame,
-						photoPath + "photo\\" + map.get(username.getText()) + "\\", fileName);
+				Utils.createPhoto(facesArray[i].tl(), facesArray[i].br(), frame, resourcePath,
+						"photo\\" + map.get(username.getText()) + "\\", fileName, map.get(username.getText()));
 
 				canTakePhoto = false;
 				takePhoto.setDisable(canTakePhoto);
@@ -239,7 +251,7 @@ public class FaceDetectionController {
 	 *            the {@link Image} to show
 	 */
 	private void updateImageView(ImageView view, Image image) {
-		FCUtils.onFXThread(view.imageProperty(), image);
+		Utils.onFXThread(view.imageProperty(), image);
 	}
 
 	/**
