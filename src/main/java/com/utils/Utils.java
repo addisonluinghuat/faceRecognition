@@ -14,6 +14,8 @@ import org.opencv.core.Size;
 import org.opencv.face.EigenFaceRecognizer;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
@@ -21,13 +23,12 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 
 public class Utils {
-	/**
-	 * Support for the {@link mat2image()} method
-	 * 
-	 * @param original
-	 *            the {@link Mat} object in BGR or grayscale
-	 * @return the corresponding {@link BufferedImage}
-	 */
+
+	@Bean
+	public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() {
+		return new PropertySourcesPlaceholderConfigurer();
+	}
+
 	public static BufferedImage matToBufferedImage(Mat original) {
 		// init
 		BufferedImage image = null;
@@ -88,7 +89,7 @@ public class Utils {
 	}
 
 	public static int training(String csvFilePath, Point tl, Point br, Mat frame) {
-		System.out.println("Starting training...");
+		System.out.println("Starting training..." + csvFilePath);
 		ArrayList<Mat> images = new ArrayList<>();
 		ArrayList<Integer> labels = new ArrayList<>();
 		FileUtils.readCSV(csvFilePath, images, labels);
@@ -123,6 +124,10 @@ public class Utils {
 
 		// System.out.println("***Actual label is " + testLabel + ".***");
 		System.out.println("***Confidence value is " + outConf[0] + ".***");
+
+		if (outConf[0] > 4000) {
+			return 0;
+		}
 		return outLabel[0];
 	}
 }

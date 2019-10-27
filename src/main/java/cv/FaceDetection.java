@@ -2,6 +2,9 @@ package cv;
 
 import org.bytedeco.javacpp.Loader;
 import org.bytedeco.javacpp.opencv_java;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
 import javafx.application.Application;
 import javafx.event.EventHandler;
@@ -11,6 +14,9 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+@Configuration
+@ComponentScan(basePackages = "com.utils")
+@PropertySource(value = { "classpath:config.properties" })
 public class FaceDetection extends Application {
 	@Override
 	public void start(Stage primaryStage) {

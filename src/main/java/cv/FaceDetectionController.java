@@ -1,7 +1,10 @@
 package cv;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Timer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -25,17 +28,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-/**
- * The controller associated with the only view of our application. The
- * application logic is implemented here. It handles the button for
- * starting/stopping the camera, the acquired video stream, the relative
- * controls and the face detection/tracking.
- * 
- * @author <a href="mailto:luigi.derussis@polito.it">Luigi De Russis</a>
- * @version 1.1 (2015-11-10)
- * @since 1.0 (2014-01-10)
- * 
- */
 public class FaceDetectionController {
 	// FXML buttons
 	@FXML
@@ -52,6 +44,8 @@ public class FaceDetectionController {
 
 	// a timer for acquiring the video stream
 	private ScheduledExecutorService timer;
+	// private ScheduledExecutorService speakTimer;
+	Timer speakTimer = new Timer();
 	// the OpenCV object that performs the video capture
 	private VideoCapture capture;
 	// a flag to change the button behavior
@@ -69,6 +63,8 @@ public class FaceDetectionController {
 			+ "\\src\\main\\resources\\haarcascades\\haarcascade_frontalface_alt.xml";
 	private static String csvFilePath = basePath + "\\src\\main\\resources\\TrainingData.txt";
 	private String fileName = "tempPhoto.jpg";
+
+	private List<String> speakList = new ArrayList<String>();
 
 	/**
 	 * Init the controller, at start time
@@ -113,8 +109,17 @@ public class FaceDetectionController {
 				};
 
 				this.timer = Executors.newSingleThreadScheduledExecutor();
+
 				this.timer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
 
+				/*
+				 * TimerTask speakTask = new TimerTask() { public void run() {
+				 * System.out.print("speack task"); SpeechUtils.speak(speakList); } };
+				 */
+
+				// speakTimer.schedule(new SpeechUtils(), 0, 5000);
+				// this.speakTimer = Executors.newSingleThreadScheduledExecutor();
+				// this.speakTimer.scheduleAtFixedRate(speakTask, 0, 33, TimeUnit.MILLISECONDS);
 				// update the button content
 				this.cameraButton.setText("Stop Camera");
 			} else {
@@ -198,8 +203,14 @@ public class FaceDetectionController {
 				Imgproc.rectangle(frame, facesArray[i].tl(), facesArray[i].br(), new Scalar(0, 255, 0), 3);
 				// Starting training
 				int userNo = Utils.training(csvFilePath, facesArray[i].tl(), facesArray[i].br(), frame);
-				String username = FileUtils.getUsernameByUserNo(resourcePath, "users.txt", userNo);
-				System.out.print("username:" + username);
+				String username = "";
+				if (userNo == 0) {
+					username = "UnKnown";
+				} else {
+					username = FileUtils.getUsernameByUserNo(resourcePath, "users.txt", userNo);
+				}
+
+				speakList.add(username);
 				Imgproc.putText(frame, username, facesArray[i].tl(), Imgproc.FONT_HERSHEY_PLAIN, 2.0,
 						new Scalar(255, 0, 0));
 			} else {
@@ -230,11 +241,22 @@ public class FaceDetectionController {
 				// stop the timer
 				this.timer.shutdown();
 				this.timer.awaitTermination(33, TimeUnit.MILLISECONDS);
+
 			} catch (InterruptedException e) {
 				// log any exception
 				System.err.println("Exception in stopping the frame capture, trying to release the camera now... " + e);
 			}
 		}
+
+		speakTimer.cancel();
+		/*
+		 * if (this.speakTimer != null && !this.speakTimer.isShutdown()) { try { // stop
+		 * the timer this.speakTimer.shutdown(); this.speakTimer.awaitTermination(33,
+		 * TimeUnit.MILLISECONDS);
+		 * 
+		 * } catch (InterruptedException e) { // log any exception
+		 * System.err.println("Exception trying to release the sound now... " + e); } }
+		 */
 
 		if (this.capture.isOpened()) {
 			// release the camera
