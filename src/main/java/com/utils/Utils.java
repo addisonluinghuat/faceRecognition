@@ -125,7 +125,10 @@ public class Utils {
 		// System.out.println("***Actual label is " + testLabel + ".***");
 		System.out.println("***Confidence value is " + outConf[0] + ".***");
 
-		if (outConf[0] > 4000) {
+		double mark = 100 - (outConf[0] / 100);
+		System.out.println("Mark:" + mark);
+		if (mark < 50.00) {
+			System.out.println("Mark:" + mark);
 			return 0;
 		}
 		return outLabel[0];
